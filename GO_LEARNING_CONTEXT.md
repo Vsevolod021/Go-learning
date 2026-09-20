@@ -1,0 +1,94 @@
+# Контекст обучения Go — для Claude Code
+
+Этот файл — не правила поведения (они в `CLAUDE.md`), а слепок нашего диалога:
+кто я, какой план и что уже сделано. Прочитай перед началом работы.
+
+## Кто я
+
+Всеволод, frontend-разработчик в Совкомбанке (Казань). Стек: TypeScript, React,
+Vite, Zod, React Query, MSW, Feature-Sliced Design, GitLab CI/CD. 
+Фронтендер на проекте `web-credit-doctor`, веду фичи end-to-end. Цель — Москва,
+senior backend, дальше tech lead/CTO. Go учу с нуля, это первый заход в бэкенд.
+
+## Твоя роль
+
+Ты ментор, а не исполнитель. Правила уже заданы в `CLAUDE.md` — не писать решение
+раньше времени, сначала подсказка → наводящий вопрос → код, ревью на
+идиоматичность, сравнения с TS/JS там, где это помогает, ответы на русском.
+
+## Роадмап
+
+**Этап 1. Основы (1-2 нед) ← я здесь**
+Установка, `go mod init`, `go run`/`go build`, структура модуля. Типы, struct,
+слайсы и мапы (слайс vs массив: `len`/`cap`, общий backing array). Указатели:
+`*T`, `&x`, value vs pointer receiver.
+
+**Этап 2. Идиоматичный Go (2-3 нед)**
+Интерфейсы (неявная реализация, структурная типизация). Ошибки вместо
+try/catch: `errors.Is/As`, `%w`. Композиция через embedding вместо наследования.
+Generics — без фанатизма, беднее чем в TS. `defer`, `panic`/`recover`.
+
+**Этап 3. Конкурентность (2-3 нед) — главное отличие от JS**
+Горутины, каналы, `select`. `sync.WaitGroup`, `sync.Mutex`, `errgroup`.
+`context.Context` (аналог AbortController). Worker pool, fan-out/fan-in.
+Гонки ловить через `go test -race`.
+
+**Этап 4. Бэкенд-стек (3-4 нед)**
+`net/http` (стандартный роутинг с методами и path-параметрами), JSON +
+`go-playground/validator` (аналог Zod). `pgx` + `sqlc` + `goose`. `log/slog`.
+
+**Этап 5. Тесты и инструменты**
+`testing`, table-driven тесты, `httptest`, `testify`. `golangci-lint`, `go vet`,
+`pprof`. Docker multi-stage, GitLab CI.
+
+**Этап 6. Архитектура и прод**
+`cmd/`, `internal/`, слои handler → service → repository. gRPC/protobuf,
+`oapi-codegen`. Метрики Prometheus, graceful shutdown.
+
+**Практические проекты по нарастающей**
+1. CLI-утилита — например, конкурентный парсер логов
+2. REST API + Postgres + тесты + Docker
+3. BFF для фронта — сильная позиция в резюме на пути к tech lead
+
+## Что уже сделано
+
+- Go установлен через winget, проверено `go version` и `go env GOPATH`
+- VS Code + расширение Go, инструменты `gopls`/`dlv`/`staticcheck`,
+  `formatOnSave` + `organizeImports`
+- Claude Code установлен нативно на Windows (`irm https://claude.ai/install.ps1 | iex`)
+- Репозиторий `go-learning` (`github.com/mrsev/go-learning`), `git init` сделан,
+  в корне лежит `CLAUDE.md` с правилами менторского режима
+- Разобрали разницу `go run main.go` (без модуля) vs `go run .` (внутри модуля),
+  `go build`, базовое логирование (`fmt.Println`, `log`, `log/slog`)
+
+- `01-hello`: `package main` и `func main`, `fmt.Println`/`Printf`, глаголы `%s`/`%v`,
+  запрет неиспользуемых переменных и импортов, `go run -work`
+- `02-types`: `var` vs `:=`, zero values, `%T`, явные преобразования,
+  `int(float)` отбрасывает дробную часть (truncation), строки в UTF-8 (`len` в байтах),
+  `rune`, `range` по строке, `utf8.RuneCountInString`, затенение встроенного `len`
+
+- `03-structs` (частично): объявление `struct`, создание значения с полями по имени
+  и через `var` (zero value), `%v` / `%+v` / `%#v` / `%q`, флаги форматирования
+  (`-`, `0`, ширина поля — это printf из C, а не про структуры),
+  blank identifier `_` и `for range` без переменных, `rune` = `int32`
+
+## Что дальше
+
+Доделать `03-structs`:
+1. Почему поля struct пишутся с заглавной буквы (экспорт на границе пакета,
+   вместо `public`/`private`).
+2. Функция, принимающая `User` и меняющая `Age`: исходное значение не изменится,
+   потому что struct передаётся по значению. Это подводка к указателям.
+3. Бонус: почему не стоит писать `User{"Vsevolod", 25, "..."}` без имён полей.
+
+Затем: указатели `*T`, `&x`, value vs pointer receiver. Дальше слайсы и мапы.
+
+## Как продолжать сессию
+
+Первое сообщение в Claude Code:
+
+> Прочитай CLAUDE.md и GO_LEARNING_CONTEXT.md. Я на этапе 1, окружение готово.
+> Начинаем с 01-hello — дай задачу, решение не пиши.
+
+По мере прохождения этапов обновляй разделы «Что уже сделано» и «Что дальше»
+в этом файле — так контекст не потеряется между сессиями.
