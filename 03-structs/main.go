@@ -25,6 +25,13 @@ func main() {
 
 	fmt.Println(user1.Age) // 25
 
+	user2 := user1
+
+	user2.Age = 10
+
+	fmt.Printf("%v\n", user1.Age)
+	fmt.Printf("%v\n", user2.Age)
+
 	// fmt.Printf("%#v\n", user1)   // main.User{Name:"Vsevolod", Age:25, Email:"seva@gmail.com"}
 	// fmt.Printf("%#v\n\n", user2) // main.User{Name:"", Age:0, Email:""}
 
