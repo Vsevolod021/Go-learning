@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/Vsevolod021/Go-learning/07-methods/user"
+	"github.com/Vsevolod021/Go-learning/basics/07-methods/user"
 )
 
 func main() {

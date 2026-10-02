@@ -1,6 +1,6 @@
 package user
 
-import "github.com/Vsevolod021/Go-learning/07-methods/age"
+import "github.com/Vsevolod021/Go-learning/basics/07-methods/age"
 
 type User struct {
 	Name string

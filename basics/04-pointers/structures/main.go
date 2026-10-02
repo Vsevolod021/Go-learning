@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/Vsevolod021/Go-learning/03-structs/models"
+	"github.com/Vsevolod021/Go-learning/basics/03-structs/models"
 )
 
 // Для работы со структурой
