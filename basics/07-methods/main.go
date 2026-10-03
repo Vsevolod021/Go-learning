@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/Vsevolod021/Go-learning/basics/07-methods/age"
 	"github.com/Vsevolod021/Go-learning/basics/07-methods/user"
 )
 
@@ -43,4 +44,8 @@ func main() {
 	// }
 
 	// usersMap2["Yulia"].Birthday() // cannot call pointer method Birthday on user.User
+
+	const n = 5 // Нетипизированная константа
+
+	fmt.Println(age.Age(20) + n)
 }
