@@ -1,4 +1,4 @@
-# Шпаргалка: этап 1 + интерфейсы
+# Шпаргалка: этап 1, интерфейсы, ошибки
 
 ## Главное правило Go
 
@@ -86,7 +86,7 @@ if v, ok := m[k]; ok { ... }       // есть ли ключ
   Исключение: `&T{...}` можно.
 - Методы объявляются только в пакете типа.
 
-**На практике:** у структур все методы на `*T`, передаёшь `&v`. `String()` и `Error()` — на `T`.
+**На практике:** у структур все методы на `*T`, передаёшь `&v`. `String()` — на `T`. Свои типы ошибок в stdlib обычно на `*T` (`*strconv.NumError`).
 
 ## Интерфейсы
 
@@ -115,6 +115,40 @@ default:      // v — Greeter (то же в case A, B:)
   внутри он **не** `nil`. Возвращая `error` без ошибки, пиши литерал `nil`.
 - `fmt.Stringer` (`String() string`): `fmt` проверяет его type switch'ем в рантайме.
   `error` проверяется раньше. С `any` ошибка получателя не ловится компилятором.
+
+## Ошибки
+
+```go
+var ErrNegativeAge = errors.New("negative age")   // sentinel, префикс Err
+
+type AgeError struct{ Value, Max int }             // свой тип с данными
+func (e *AgeError) Error() string { ... }
+
+func parseAge(s string) (int, error) {
+	x, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, fmt.Errorf("parse age %q: %w", s, err)   // %w сохраняет ошибку
+	}
+	if x > maxAge {
+		return 0, &AgeError{Value: x, Max: maxAge}
+	}
+	return x, nil                                     // литерал nil
+}
+
+if errors.Is(err, ErrNegativeAge) { ... }           // это та самая ошибка?
+
+var ae *AgeError                                    // var, без =
+if errors.As(err, &ae) { ae.Value }                 // есть ли ошибка этого типа?
+```
+
+- Проверяй ошибку сразу после вызова. При ошибке значение не трогай, возвращай zero value.
+- Текст: со строчной буквы, без точки, с контекстом. Читается цепочкой: `a: b: причина`.
+- `%w` — ошибка остаётся внутри (`errors.Unwrap`). `%v` — превращается в текст.
+- `==` видит только внешнюю обёртку. Всегда `errors.Is` / `errors.As`.
+- `Is` ищет **значение**, `As` ищет **тип** и записывает его в переменную (поэтому `&`).
+- **nil-ловушка:** `var e *AgeError; return e` — это не `nil` error. Возвращай литерал `nil`.
+  `fmt` напечатает такую ошибку как `<nil>`, так что печать ничего не доказывает.
+- `log.Fatalf` = печать + `os.Exit(1)`, `defer` не срабатывают. Только в `main`.
 
 ## Пакеты и видимость
 
