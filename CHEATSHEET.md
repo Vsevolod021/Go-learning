@@ -1,4 +1,4 @@
-# Шпаргалка: этап 1, интерфейсы, ошибки
+# Шпаргалка: этап 1, интерфейсы, ошибки, встраивание
 
 ## Главное правило Go
 
@@ -149,6 +149,31 @@ if errors.As(err, &ae) { ae.Value }                 // есть ли ошибк�
 - **nil-ловушка:** `var e *AgeError; return e` — это не `nil` error. Возвращай литерал `nil`.
   `fmt` напечатает такую ошибку как `<nil>`, так что печать ничего не доказывает.
 - `log.Fatalf` = печать + `os.Exit(1)`, `defer` не срабатывают. Только в `main`.
+
+## Встраивание
+
+```go
+type Employee struct {
+	Person              // встраивание: имя поля = Person
+	Address
+	Position string
+}
+
+e := Employee{Person: Person{Name: "V"}, Position: "Backend"}
+e.Name                 // = e.Person.Name (продвижение)
+e.Greet()              // = e.Person.Greet()
+introduce(e.Person)    // func(Person) не примет e целиком
+
+type ReadWriter interface { Reader; Writer }   // встраивание интерфейсов
+```
+
+- Это **has-a**, а не наследование: `Employee` не является `Person`.
+- Продвинутые методы входят в method set — `Employee` подходит под интерфейсы `Person`.
+- **Нет виртуальных методов:** продвинутый `Person.Greet` вызовет `Person.Title`,
+  а не `Employee.Title`. Получатель — только вложенный `Person`. Полиморфизм — через интерфейс.
+- Собственное поле или метод затеняет встроенный. В литерале `Name:` попадёт в собственное поле.
+- Одно имя у двух встроенных на одном уровне — `ambiguous selector`, но только при обращении.
+  Явный путь `e.Person.Name` работает всегда.
 
 ## Пакеты и видимость
 
